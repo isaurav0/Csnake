@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "snake.C": "cpp",
+        "iostream": "cpp"
+    }
+}
