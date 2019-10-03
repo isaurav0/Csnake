@@ -17,7 +17,7 @@ enum direction dir;
 void Setup()
 {
     gameOver = false;
-    //dir = LEFT;
+    dir = LEFT;
     x = width / 2;
     y = height / 2;
     fruitX = rand() % width;
@@ -42,7 +42,7 @@ void Draw()
             if (j == 0 | j == width - 1)
                 printw("|");
             else if (i == y && j == x)
-                printw("O");
+                printw("@");
             else if (i == fruitY && j == fruitX)
             {
                 printw("*");
@@ -50,17 +50,16 @@ void Draw()
             else
             {
                 bool print = false;
-                // for(int k=1; k<=ntail;k++){
-                //     if(tailX[k]==i && tailY[k]==j)
-                //     {
-                //         printw("o");
-                //         print = true;
-                //     }   
-                // }
+                for(int k=0; k<ntail;k++){
+                    if(tailX[k]==j && tailY[k]==i)
+                    {
+                        printw("o");
+                        print = true;
+                    }   
+                }
                 if(!print){
                     printw(" ");
-                }
-                
+                }   
             }
                 
         }
@@ -73,8 +72,6 @@ void Draw()
     }
     printw("\n");
     printw("Score: %d", score);
-    for(int k=1;k<=ntail;k++)
-        printw("o");
 }
 
 void Input()
@@ -137,7 +134,7 @@ void Logic()
             break;
     }
 
-    if (x >= width || x <= 0 || y >= height || y <= 0)
+    if (x >= width-1 || x <= 0 || y >= height || y < 0)
         gameOver = true;
     
  
@@ -148,11 +145,19 @@ void Logic()
         fruitY = rand() % height;
         ntail++;
     }
+
+    for (int i = 0; i < ntail; i++)
+        if (tailX[i] == x && tailY[i] == y)
+            gameOver = true;
+
 }
 
 int main()
 {
     initscr();
+    float speed = 100000;
+    if(score>20)
+        speed*=1.10;
     keypad(stdscr, TRUE);
     nodelay(stdscr, TRUE);
     Setup();
@@ -161,7 +166,7 @@ int main()
         Draw();
         Input();
         Logic();
-        usleep(100000);
+        usleep(speed);
     }
     nodelay(stdscr, FALSE);
     Draw();
