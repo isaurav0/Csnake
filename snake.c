@@ -4,12 +4,13 @@
 #include <stdlib.h> 
 
 bool gameOver;
+int bodyX[100], bodyY[100];
+int x, y;
 const int width = 40;
 const int height = 20;
 int fruitX, fruitY, score;
-float x, y;
-int tailX[100], tailY[100];
-int ntail;
+int body_len;
+int speed = 100000;
 enum direction { STOP = 0, LEFT, RIGHT, UP, DOWN };
 enum direction dir;
 
@@ -47,11 +48,13 @@ void Draw()
             {
                 printw("*");
             }
+            // else if(i==height-1 && j>0 && j<width-1)
+            //     printw("_");
             else
             {
                 bool print = false;
-                for(int k=0; k<ntail;k++){
-                    if(tailX[k]==j && tailY[k]==i)
+                for(int k=0; k<body_len;k++){
+                    if(bodyX[k]==j && bodyY[k]==i)
                     {
                         printw("o");
                         print = true;
@@ -68,10 +71,11 @@ void Draw()
 
     for (int i = 0; i < width; i++)
     {
-        printw("-");
+        printw("‾");
     }
     printw("\n");
-    printw("Score: %d", score);
+    printw("Score: %d \n", score);
+    printw("X -> %d : fruitX -> %d\n speed-> %d",x,fruitX, speed);
 }
 
 void Input()
@@ -101,17 +105,17 @@ void Input()
 
 void Logic()
 {
-    int prevX = tailX[0];
-    int prevY = tailY[0];
+    int prevX = bodyX[0];
+    int prevY = bodyY[0];
     int prev2X, prev2Y;
-    tailX[0] = x;
-    tailY[0] = y;
-    for (int i = 1; i < ntail; i++)
+    bodyX[0] = x;
+    bodyY[0] = y;
+    for (int i = 1; i < body_len; i++)
     {
-        prev2X = tailX[i];
-        prev2Y = tailY[i];
-        tailX[i] = prevX;
-        tailY[i] = prevY;
+        prev2X = bodyX[i];
+        prev2Y = bodyY[i];
+        bodyX[i] = prevX;
+        bodyY[i] = prevY;
         prevX = prev2X;
         prevY = prev2Y;
     }
@@ -137,17 +141,17 @@ void Logic()
     if (x >= width-1 || x <= 0 || y >= height || y < 0)
         gameOver = true;
     
- 
+    
     if (x == fruitX && y == fruitY)
     {
         score += 10;
-        fruitX = rand() % width;
-        fruitY = rand() % height;
-        ntail++;
+        fruitX = rand() % width+1;
+        fruitY = rand() % height+1;
+        body_len++;
     }
 
-    for (int i = 0; i < ntail; i++)
-        if (tailX[i] == x && tailY[i] == y)
+    for (int i = 0; i < body_len; i++)
+        if (bodyX[i] == x && bodyY[i] == y)
             gameOver = true;
 
 }
@@ -155,9 +159,7 @@ void Logic()
 int main()
 {
     initscr();
-    float speed = 100000;
-    if(score>20)
-        speed*=1.10;
+    int factor;
     keypad(stdscr, TRUE);
     nodelay(stdscr, TRUE);
     Setup();
@@ -167,6 +169,12 @@ int main()
         Input();
         Logic();
         usleep(speed);
+        factor = score/30;
+        if(score%30==0)
+        {
+            speed = abs(100000-factor*9000);
+        }
+            
     }
     nodelay(stdscr, FALSE);
     Draw();
